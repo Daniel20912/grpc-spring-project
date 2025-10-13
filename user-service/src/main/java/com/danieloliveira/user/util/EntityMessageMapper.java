@@ -1,6 +1,8 @@
 package com.danieloliveira.user.util;
 
 import com.danieloliveira.user.Holding;
+import com.danieloliveira.user.StockTradeRequest;
+import com.danieloliveira.user.StockTradeResponse;
 import com.danieloliveira.user.UserInformation;
 import com.danieloliveira.user.entity.PortfolioItem;
 import com.danieloliveira.user.entity.User;
@@ -21,5 +23,25 @@ public class EntityMessageMapper {
                 .addAllHoldings(holdings)
                 .build();
 
+    }
+
+    public static PortfolioItem toPortfolioItem(StockTradeRequest request) {
+        var portfolioItem = new PortfolioItem();
+        portfolioItem.setUserId(request.getUserId());
+        portfolioItem.setTicker(request.getTicker());
+        portfolioItem.setQuantity(request.getQuantity());
+        return portfolioItem;
+    }
+
+    public static StockTradeResponse toStockTradeResponse(StockTradeRequest request, int balance) {
+        return StockTradeResponse.newBuilder()
+                .setUserId(request.getUserId())
+                .setPrice(request.getPrice())
+                .setTicker(request.getTicker())
+                .setQuantity(request.getQuantity())
+                .setAction(request.getAction())
+                .setTotalPrice(request.getPrice() * request.getQuantity())
+                .setBalance(balance)
+                .build();
     }
 }
