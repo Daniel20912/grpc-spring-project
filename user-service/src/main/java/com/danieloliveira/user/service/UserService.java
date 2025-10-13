@@ -1,17 +1,20 @@
 package com.danieloliveira.user.service;
 
 import com.danieloliveira.user.*;
+import com.danieloliveira.user.service.requestHandler.StockTradeRequestHandler;
 import com.danieloliveira.user.service.requestHandler.UserInformationRequestHandler;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
 
 @GrpcService
-public class UserService extends UserServiceGrpc.UserServiceImplBase{
+public class UserService extends UserServiceGrpc.UserServiceImplBase {
 
     private final UserInformationRequestHandler userInformationRequestHandler;
+    private final StockTradeRequestHandler stockTradeRequestHandler;
 
-    public UserService(UserInformationRequestHandler userInformationRequestHandler) {
+    public UserService(UserInformationRequestHandler userInformationRequestHandler, StockTradeRequestHandler stockTradeRequestHandler) {
         this.userInformationRequestHandler = userInformationRequestHandler;
+        this.stockTradeRequestHandler = stockTradeRequestHandler;
     }
 
     @Override
@@ -23,6 +26,11 @@ public class UserService extends UserServiceGrpc.UserServiceImplBase{
 
     @Override
     public void tradeStock(StockTradeRequest request, StreamObserver<StockTradeResponse> responseObserver) {
+        var response = TradeAction.SELL.equals(request.getAction()) ?
+                this.stockTradeRequestHandler.sellStock(request) :
+                this.stockTradeRequestHandler.buyStock(request);
 
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
     }
 }

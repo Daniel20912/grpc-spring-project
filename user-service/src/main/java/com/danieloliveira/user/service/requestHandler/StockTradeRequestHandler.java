@@ -4,6 +4,7 @@ import com.danieloliveira.common.Ticker;
 import com.danieloliveira.user.StockTradeRequest;
 import com.danieloliveira.user.StockTradeResponse;
 import com.danieloliveira.user.exception.InsufficientBalanceException;
+import com.danieloliveira.user.exception.InsufficientSharesException;
 import com.danieloliveira.user.exception.UnknowTickerException;
 import com.danieloliveira.user.exception.UnknowUserException;
 import com.danieloliveira.user.repository.PortfolioItemRepository;
@@ -42,6 +43,25 @@ public class StockTradeRequestHandler {
                         () -> this.portfolioItemRepository.save(EntityMessageMapper.toPortfolioItem(request))
                 );
 
+        return EntityMessageMapper.toStockTradeResponse(request, user.getBalance());
+    }
+
+    @Transactional // em caso de alguma exceção será feito um rollback
+    public StockTradeResponse sellStock(StockTradeRequest request) {
+        // validate
+        this.validateTicker(request.getTicker());
+
+        var user = this.userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new UnknowUserException(request.getUserId()));
+
+        var portfolioItem = this.portfolioItemRepository.findByUserIdAndTicker(user.getId(), request.getTicker())
+                .filter(item -> item.getQuantity() >= request.getQuantity())
+                .orElseThrow(() -> new InsufficientSharesException(user.getId()));
+
+        // valid request
+        var totalPrice = request.getQuantity() * request.getPrice();
+        user.setBalance(user.getBalance() + totalPrice);
+        portfolioItem.setQuantity(portfolioItem.getQuantity() - request.getQuantity());
         return EntityMessageMapper.toStockTradeResponse(request, user.getBalance());
     }
 
