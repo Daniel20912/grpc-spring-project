@@ -1,0 +1,4 @@
+# Project exclude paths
+/aggregator-service/target/
+/proto/target/
+/user-service/target/
