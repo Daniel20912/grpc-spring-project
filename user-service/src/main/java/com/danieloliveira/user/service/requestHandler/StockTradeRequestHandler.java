@@ -72,7 +72,7 @@ public class StockTradeRequestHandler {
     }
 
     private void validateUserBalance(Integer userId, Integer userBalance, Integer totalPrice) {
-        if (totalPrice < userBalance) {
+        if (totalPrice > userBalance) {
             throw new InsufficientBalanceException(userId);
         }
     }
