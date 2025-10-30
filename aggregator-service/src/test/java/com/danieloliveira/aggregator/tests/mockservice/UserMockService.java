@@ -6,6 +6,7 @@ import io.grpc.stub.StreamObserver;
 
 public class UserMockService extends UserServiceGrpc.UserServiceImplBase {
 
+
     @Override
     public void getUserInformation(UserInformationRequest request, StreamObserver<UserInformation> responseObserver) {
         if (request.getUserId() == 1) {
@@ -23,7 +24,6 @@ public class UserMockService extends UserServiceGrpc.UserServiceImplBase {
 
     @Override
     public void tradeStock(StockTradeRequest request, StreamObserver<StockTradeResponse> responseObserver) {
-
         var response = StockTradeResponse.newBuilder()
                 .setUserId(request.getUserId())
                 .setTicker(request.getTicker())
